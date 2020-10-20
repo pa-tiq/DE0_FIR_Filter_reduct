@@ -21,8 +21,8 @@ entity tb_fir_filter_test is
 		Wout 			: INTEGER 	:= 28		;-- Output bit width: between Win and Wadd
 		BUTTON_HIGH 	: STD_LOGIC := '0'		;
 		PATTERN_SIZE	: INTEGER 	:= 256		;
-		RANGE_LOW 		: INTEGER 	:= -512		; --pattern range: power of 2
-		RANGE_HIGH 		: INTEGER 	:= 511		; --must change pattern too
+		RANGE_LOW 		: INTEGER 	:= -512		;
+		RANGE_HIGH 		: INTEGER 	:= 511		;
 		LFilter  		: INTEGER 	:= 512		); -- Filter length
 end tb_fir_filter_test;
 
@@ -42,12 +42,14 @@ generic(
 port (
 	clk                   	: in  std_logic;
 	reset                  	: in  std_logic;
-	o_data_buffer           : out std_logic_vector( Wout-1 downto 0)) ;-- to seven segment
+	o_data_buffer           : out std_logic_vector( Wout-1 downto 0); 
+	o_fir_coeff	            : out std_logic_vector( Win-1 downto 0)) ;
 end component;
 
 signal clk                     : std_logic:='0';
 signal reset                   : std_logic;
-signal o_data_buffer           : std_logic_vector( Wout-1 downto 0); -- to seven segment
+signal o_data_buffer           : std_logic_vector( Wout-1 downto 0); 
+signal o_fir_coeff             : std_logic_vector( Win-1 downto 0); 
 
 begin
 
@@ -68,7 +70,8 @@ generic map(
 port map(
 	clk              	 => clk                  ,
 	reset                => reset                ,
-	o_data_buffer        => o_data_buffer        );	
+	o_data_buffer        => o_data_buffer        ,
+	o_fir_coeff       	 => o_fir_coeff        );	
 
 end behave;
 

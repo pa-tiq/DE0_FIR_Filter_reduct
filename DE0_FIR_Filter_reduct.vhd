@@ -124,9 +124,25 @@ port (
 	o_data_buffer           : out std_logic_vector( Wout-1 downto 0));
 end component;
 
+component transmit
+generic(
+	Wout 		: INTEGER	);
+port (
+	clk          : in  std_logic ;							
+	reset        : in  std_logic ;
+	data_enable	 : in  std_logic ;
+	data_buffer  : in std_logic_vector( Wout-1 downto 0)
+	data_valid   : out std_logic ;
+	serial_error : out std_logic ;
+	serial_out   : out std_logic );
+end component;
+
 signal w_rstb               : std_logic;
 signal w_clk                : std_logic;
-signal data_buffer          : std_logic_vector( Wout-1 downto 0); -- to seven segment
+signal data_buffer          : std_logic_vector( Wout-1 downto 0);
+signal enable_serialization : std_logic;
+signal transfer_valid       : std_logic;
+signal serial_out           ; std_logic;
 
 begin
 -- CLOCK and RESET
@@ -174,9 +190,17 @@ generic map(
 	BUTTON_HIGH => BUTTON_HIGH	,
 	PATTERN_SIZE=> PATTERN_SIZE )
 port map(
-	clk                 	=> w_clk                   ,
-	reset                   => w_rstb                  ,
-	o_data_buffer           => data_buffer             );
+	clk             => w_clk                   ,
+	reset           => w_rstb                  ,
+	o_data_buffer   => data_buffer             );
+
+u_transmit : transmit
+generic map(
+	Wout            => Wout			)
+port map(
+	clk             => w_clk                   ,
+	reset           => w_rstb                  ,
+	data_buffer     => data_buffer             );
 
 ------------------------------------------------------------------------------------------------------------------
 -- ASSIGN unused pins
