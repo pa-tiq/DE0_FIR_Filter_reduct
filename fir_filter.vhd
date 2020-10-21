@@ -17,7 +17,8 @@ port (
 	reset    : in  std_logic							;
 	i_coeff  : in  ARRAY_COEFF							;
 	i_data   : in  std_logic_vector( Win-1 	downto 0)	;
-	o_data   : out std_logic_vector( Wout-1 downto 0)   );
+	o_data   : out std_logic_vector( Wout-1 downto 0)   ;
+	enable   : out std_logic							);
 end fir_filter;
 
 architecture rtl of fir_filter is
@@ -31,6 +32,7 @@ signal data      : t_data				;
 signal mult      : t_mult				;
 signal add_st0   : t_add_st0			;
 signal add_st1   : signed(Wadd downto 0);
+signal l_enable  : std_logic := '0';
 
 begin
 		
@@ -38,7 +40,7 @@ begin
 	begin
 		if(reset=BUTTON_HIGH) then
 			data   		<= (others=>(others=>'0'));
-			coeff  		<= (others=>(others=>'0'));			
+			coeff  		<= (others=>(others=>'0'));
 		elsif(rising_edge(clk)) then
 			data <= signed(i_data)&data(0 to data'length-2);
 			for k in 0 to Lfilter-1 loop
@@ -87,9 +89,10 @@ begin
 	begin
 		if(reset=BUTTON_HIGH) then
 			o_data  <= (others=>'0');
+			enable <= '0';
 		elsif(rising_edge(clk)) then
 			o_data  <= std_logic_vector(add_st1(Wadd downto (Wadd-(o_data'length-1))));
-			--divide = shift right		
+			enable  <= '1';	
 		end if;
 	end process p_output;
 

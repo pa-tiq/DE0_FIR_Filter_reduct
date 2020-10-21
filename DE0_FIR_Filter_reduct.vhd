@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 PACKAGE n_bit_int IS
-	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(9 DOWNTO 0)	; --Win-1
+	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(8 DOWNTO 0)	; --Win-1
 	TYPE ARRAY_COEFF IS ARRAY (NATURAL RANGE <>) OF COEFF_TYPE;
 END n_bit_int;
 
@@ -15,15 +15,15 @@ use ieee.numeric_std.all;
 
 entity DE0_FIR_Filter_reduct is
 	generic ( 
-		Win 			: INTEGER 	:= 10		;-- Input bit width
-		Wmult			: INTEGER 	:= 20    	;-- Multiplier bit width 2*Win
-		Wadd 			: INTEGER 	:= 28		;-- Adder width = Wmult+log2(L)-1
-		Wout 			: INTEGER 	:= 28		;-- Output bit width: between Win and Wadd
+		Win 			: INTEGER 	:= 9		;-- Input bit width
+		Wmult			: INTEGER 	:= 18		;-- Multiplier bit width 2*Win
+		Wadd 			: INTEGER 	:= 25		;-- Adder width = Wmult+log2(L)-1
+		Wout 			: INTEGER 	:= 11		;-- Output bit width: between Win and Wadd
 		BUTTON_HIGH 	: STD_LOGIC := '0'		;
-		PATTERN_SIZE	: INTEGER 	:= 256		;
-		RANGE_LOW 		: INTEGER 	:= -512		; --pattern range: power of 2
-		RANGE_HIGH 		: INTEGER 	:= 511		; --must change pattern too
-		LFilter  		: INTEGER 	:= 512		); -- Filter length
+		PATTERN_SIZE	: INTEGER 	:= 32		;
+		RANGE_LOW 		: INTEGER 	:= -256		; --pattern range: power of 2
+		RANGE_HIGH 		: INTEGER 	:= 255		; --must change pattern too
+		LFilter  		: INTEGER 	:= 256		); -- Filter length
 port (
 	-- ////////////////////	clock input	 	////////////////////	 
 	pad_i_clock_50                             : in    std_logic;  --	50 MHz
@@ -121,20 +121,9 @@ generic(
 port (
 	clk                     : in  std_logic;
 	reset                   : in  std_logic;
+	in_process_enable          : in  std_logic;
+	out_transmit_enable             : out  std_logic;
 	o_data_buffer           : out std_logic_vector( Wout-1 downto 0));
-end component;
-
-component transmit
-generic(
-	Wout 		: INTEGER	);
-port (
-	clk          : in  std_logic ;							
-	reset        : in  std_logic ;
-	data_enable	 : in  std_logic ;
-	data_buffer  : in std_logic_vector( Wout-1 downto 0)
-	data_valid   : out std_logic ;
-	serial_error : out std_logic ;
-	serial_out   : out std_logic );
 end component;
 
 signal w_rstb               : std_logic;
@@ -142,7 +131,9 @@ signal w_clk                : std_logic;
 signal data_buffer          : std_logic_vector( Wout-1 downto 0);
 signal enable_serialization : std_logic;
 signal transfer_valid       : std_logic;
-signal serial_out           ; std_logic;
+signal serial_error         : std_logic;
+signal serial_out           : std_logic;
+signal process_enable       : std_logic;
 
 begin
 -- CLOCK and RESET
@@ -171,12 +162,19 @@ pad_o_hex1_d	<= (others => '0');
 pad_o_hex2_d	<= (others => '0');
 pad_o_hex3_d	<= (others => '0');
 
-pad_b_gpio1_d(0) <= data_buffer(Wout-1);
-pad_b_gpio1_d(1) <= data_buffer(Wout-2);
-pad_b_gpio1_d(2) <= data_buffer(Wout-3);
-pad_b_gpio1_d(3) <= data_buffer(Wout-4);
-pad_b_gpio1_d(4) <= data_buffer(Wout-5);
-pad_b_gpio1_d(5) <= data_buffer(Wout-6);
+transmission : process(w_rstb,transfer_valid)
+begin
+	if(w_rstb=BUTTON_HIGH) then
+		process_enable <= '0';
+		pad_b_gpio1_d(0) <= '0';
+	elsif (transfer_valid='1') then 
+		if (serial_error='0') then
+			pad_b_gpio1_d(0) <= serial_out;
+		end if;
+	else
+		process_enable <= '1';
+	end if;		
+end process transmission;
 
 u_fir_filter_test : fir_filter_test
 generic map(
@@ -190,17 +188,11 @@ generic map(
 	BUTTON_HIGH => BUTTON_HIGH	,
 	PATTERN_SIZE=> PATTERN_SIZE )
 port map(
-	clk             => w_clk                   ,
-	reset           => w_rstb                  ,
-	o_data_buffer   => data_buffer             );
-
-u_transmit : transmit
-generic map(
-	Wout            => Wout			)
-port map(
-	clk             => w_clk                   ,
-	reset           => w_rstb                  ,
-	data_buffer     => data_buffer             );
+	clk             => w_clk         ,
+	reset           => w_rstb        ,
+	in_process_enable       => process_enable,
+	out_transmit_enable     => enable_serialization,
+	o_data_buffer   => data_buffer   );
 
 ------------------------------------------------------------------------------------------------------------------
 -- ASSIGN unused pins
