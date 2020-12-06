@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 PACKAGE n_bit_int IS
-	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(9 DOWNTO 0)	; --Win-1
+	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(8 DOWNTO 0)	; --Win-1
 	TYPE ARRAY_COEFF IS ARRAY (NATURAL RANGE <>) OF COEFF_TYPE;
 END n_bit_int;
 
@@ -15,10 +15,10 @@ use ieee.numeric_std.all;
 
 entity DE0_FIR_Filter_reduct is
 	generic ( 
-		Win 			: INTEGER 	:= 10		;-- Input bit width
-		Wmult			: INTEGER 	:= 20    	;-- Multiplier bit width 2*Win
-		Wadd 			: INTEGER 	:= 28		;-- Adder width = Wmult+log2(L)-1
-		Wout 			: INTEGER 	:= 28		;-- Output bit width: between Win and Wadd
+		Win 			: INTEGER 	:= 9		;-- Input bit width
+		Wmult			: INTEGER 	:= 18    	;-- Multiplier bit width 2*Win
+		Wadd 			: INTEGER 	:= 26		;-- Adder width = Wmult+log2(L)-1
+		Wout 			: INTEGER 	:= 26		;-- Output bit width: between Win and Wadd
 		BUTTON_HIGH 	: STD_LOGIC := '0'		;
 		PATTERN_SIZE	: INTEGER 	:= 256		;
 		RANGE_LOW 		: INTEGER 	:= -512		; --pattern range: power of 2
