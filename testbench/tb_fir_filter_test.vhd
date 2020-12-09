@@ -12,6 +12,7 @@ USE work.n_bit_int.ALL;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use std.textio.all;
 
 entity tb_fir_filter_test is
 	generic( 
@@ -43,13 +44,15 @@ port (
 	clk                   	: in  std_logic;
 	reset                  	: in  std_logic;
 	o_data_buffer           : out std_logic_vector( Wout-1 downto 0);
-	o_fir_coeff           : out std_logic_vector( Win-1 downto 0)) ;
+	o_fir_coeff             : out std_logic_vector( Win-1 downto 0);
+	read_out                : out integer );
 end component;
 
 signal clk                     : std_logic:='0';
 signal reset                   : std_logic;
+signal read_out                : integer;
 signal o_data_buffer           : std_logic_vector( Wout-1 downto 0);
-signal o_fir_coeff           : std_logic_vector( Win-1 downto 0);
+signal o_fir_coeff             : std_logic_vector( Win-1 downto 0);
 
 begin
 
@@ -71,7 +74,22 @@ port map(
 	clk              	 => clk                  ,
 	reset                => reset                ,
 	o_data_buffer        => o_data_buffer        ,	
-	o_fir_coeff        => o_fir_coeff        );	
+	o_fir_coeff          => o_fir_coeff        ,	
+	read_out             => read_out        );	
+
+p_dump  : process(reset,read_out)
+file test_vector      : text open write_mode is "output_file.txt";
+variable row          : line;
+begin
+  
+	if(reset='0') then
+	------------------------------------
+	--elsif(rising_edge(read_out)) then
+	elsif(read_out<1572) then
+		write(row,to_integer(signed(o_data_buffer)), left, 10);			
+		writeline(test_vector,row);
+	end if;
+end process p_dump;
 
 end behave;
 

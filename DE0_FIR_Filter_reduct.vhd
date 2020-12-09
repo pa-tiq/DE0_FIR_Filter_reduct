@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 PACKAGE n_bit_int IS
-	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(8 DOWNTO 0)	; --Win-1
+	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(9 DOWNTO 0)	; --Win-1
 	TYPE ARRAY_COEFF IS ARRAY (NATURAL RANGE <>) OF COEFF_TYPE;
 END n_bit_int;
 
@@ -14,11 +14,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity DE0_FIR_Filter_reduct is
-	generic ( 
-		Win 			: INTEGER 	:= 9		;-- Input bit width
-		Wmult			: INTEGER 	:= 18    	;-- Multiplier bit width 2*Win
-		Wadd 			: INTEGER 	:= 26		;-- Adder width = Wmult+log2(L)-1
-		Wout 			: INTEGER 	:= 26		;-- Output bit width: between Win and Wadd
+	generic( 
+		Win 			: INTEGER 	:= 10		;-- Input bit width
+		Wmult			: INTEGER 	:= 20    	;-- Multiplier bit width 2*Win
+		Wadd 			: INTEGER 	:= 28		;-- Adder width = Wmult+log2(L)-1
+		Wout 			: INTEGER 	:= 28		;-- Output bit width: between Win and Wadd
 		BUTTON_HIGH 	: STD_LOGIC := '0'		;
 		PATTERN_SIZE	: INTEGER 	:= 256		;
 		RANGE_LOW 		: INTEGER 	:= -512		; --pattern range: power of 2
@@ -121,11 +121,13 @@ generic(
 port (
 	clk                     : in  std_logic;
 	reset                   : in  std_logic;
-	o_data_buffer           : out std_logic_vector( Wout-1 downto 0));
+	o_data_buffer           : out std_logic_vector( Wout-1 downto 0);
+	read_out                : out integer );
 end component;
 
 signal w_rstb               : std_logic;
 signal w_clk                : std_logic;
+signal read_out				: integer;
 signal data_buffer          : std_logic_vector( Wout-1 downto 0); -- to seven segment
 
 begin
@@ -144,16 +146,6 @@ pad_o_ledg(6)  <= '0';
 pad_o_ledg(7)  <= '0';
 pad_o_ledg(8)  <= '0';
 pad_o_ledg(9)  <= pad_i_button(0);
-
-pad_o_hex0_dp     <= '0';
-pad_o_hex1_dp     <= '0';
-pad_o_hex2_dp     <= '0';
-pad_o_hex3_dp     <= '0'; 
-
-pad_o_hex0_d	<= (others => '0');
-pad_o_hex1_d	<= (others => '0');
-pad_o_hex2_d	<= (others => '0');
-pad_o_hex3_d	<= (others => '0');
 
 pad_b_gpio1_d(0) <= data_buffer(Wout-1);
 pad_b_gpio1_d(1) <= data_buffer(Wout-2);
@@ -176,7 +168,18 @@ generic map(
 port map(
 	clk                 	=> w_clk                   ,
 	reset                   => w_rstb                  ,
-	o_data_buffer           => data_buffer             );
+	o_data_buffer           => data_buffer             ,
+	read_out				=> read_out				   );
+	
+pad_o_hex0_dp     <= '0';
+pad_o_hex1_dp     <= '0';
+pad_o_hex2_dp     <= '0';
+pad_o_hex3_dp     <= '0'; 
+
+pad_o_hex0_d	<= (others => '0');
+pad_o_hex1_d	<= (others => '0');
+pad_o_hex2_d	<= (others => '0');
+pad_o_hex3_d	<= (others => '0');
 
 ------------------------------------------------------------------------------------------------------------------
 -- ASSIGN unused pins
