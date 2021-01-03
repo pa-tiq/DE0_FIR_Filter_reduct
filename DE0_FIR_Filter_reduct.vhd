@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 PACKAGE n_bit_int IS
-	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(9 DOWNTO 0)	; --Win-1
+	SUBTYPE COEFF_TYPE IS STD_LOGIC_VECTOR(10 DOWNTO 0)	; --Win-1
 	TYPE ARRAY_COEFF IS ARRAY (NATURAL RANGE <>) OF COEFF_TYPE;
 END n_bit_int;
 
@@ -15,14 +15,14 @@ use ieee.numeric_std.all;
 
 entity DE0_FIR_Filter_reduct is
 	generic( 
-		Win 			: INTEGER 	:= 10		;-- Input bit width
-		Wmult			: INTEGER 	:= 20    	;-- Multiplier bit width 2*Win
-		Wadd 			: INTEGER 	:= 28		;-- Adder width = Wmult+log2(L)-1
-		Wout 			: INTEGER 	:= 28		;-- Output bit width: between Win and Wadd
+		Win 			: INTEGER 	:= 11		;-- Input bit width
+		Wmult			: INTEGER 	:= 22    	;-- Multiplier bit width 2*Win
+		Wadd 			: INTEGER 	:= 31		;-- Adder width = Wmult+log2(L)-1
+		Wout 			: INTEGER 	:= 31		;-- Output bit width: between Win and Wadd
 		BUTTON_HIGH 	: STD_LOGIC := '0'		;
 		PATTERN_SIZE	: INTEGER 	:= 256		;
-		RANGE_LOW 		: INTEGER 	:= -512		; --pattern range: power of 2
-		RANGE_HIGH 		: INTEGER 	:= 511		; --must change pattern too
+		RANGE_LOW 		: INTEGER 	:= -1024	; --pattern range: power of 2
+		RANGE_HIGH 		: INTEGER 	:= 1023		; --must change pattern too
 		LFilter  		: INTEGER 	:= 512		); -- Filter length
 port (
 	-- ////////////////////	clock input	 	////////////////////	 
@@ -135,25 +135,6 @@ begin
 w_rstb  <= pad_i_button(0);
 w_clk   <= pad_i_clock_50;
 
--- LED
-pad_o_ledg(0)  <= '0';
-pad_o_ledg(1)  <= '0';
-pad_o_ledg(2)  <= '0';
-pad_o_ledg(3)  <= '0';
-pad_o_ledg(4)  <= '0';
-pad_o_ledg(5)  <= '0';
-pad_o_ledg(6)  <= '0';
-pad_o_ledg(7)  <= '0';
-pad_o_ledg(8)  <= '0';
-pad_o_ledg(9)  <= pad_i_button(0);
-
-pad_b_gpio1_d(0) <= data_buffer(Wout-1);
-pad_b_gpio1_d(1) <= data_buffer(Wout-2);
-pad_b_gpio1_d(2) <= data_buffer(Wout-3);
-pad_b_gpio1_d(3) <= data_buffer(Wout-4);
-pad_b_gpio1_d(4) <= data_buffer(Wout-5);
-pad_b_gpio1_d(5) <= data_buffer(Wout-6);
-
 u_fir_filter_test : fir_filter_test
 generic map(
 	Win 	   	=> Win			,
@@ -170,16 +151,37 @@ port map(
 	reset                   => w_rstb                  ,
 	o_data_buffer           => data_buffer             ,
 	read_out				=> read_out				   );
-	
-pad_o_hex0_dp     <= '0';
-pad_o_hex1_dp     <= '0';
-pad_o_hex2_dp     <= '0';
-pad_o_hex3_dp     <= '0'; 
 
-pad_o_hex0_d	<= (others => '0');
-pad_o_hex1_d	<= (others => '0');
-pad_o_hex2_d	<= (others => '0');
-pad_o_hex3_d	<= (others => '0');
+pad_b_gpio1_d(0) <= data_buffer(Wout-1);
+pad_b_gpio1_d(1) <= std_logic_vector(to_unsigned(read_out,1))(0);
+pad_b_gpio1_d(2) <= data_buffer(Wout-3);
+pad_b_gpio1_d(3) <= data_buffer(Wout-4);
+pad_b_gpio1_d(4) <= data_buffer(Wout-5);
+pad_b_gpio1_d(5) <= data_buffer(Wout-6);
+
+
+
+	-- LED
+	pad_o_ledg(0)  <= '0';
+	pad_o_ledg(1)  <= '0';
+	pad_o_ledg(2)  <= '0';
+	pad_o_ledg(3)  <= '0';
+	pad_o_ledg(4)  <= '0';
+	pad_o_ledg(5)  <= '0';
+	pad_o_ledg(6)  <= '0';
+	pad_o_ledg(7)  <= '0';
+	pad_o_ledg(8)  <= '0';
+	pad_o_ledg(9)  <= pad_i_button(0);
+	
+	pad_o_hex0_dp     <= '0';
+	pad_o_hex1_dp     <= '0';
+	pad_o_hex2_dp     <= '0';
+	pad_o_hex3_dp     <= '0'; 
+
+	pad_o_hex0_d	<= (others => '0');
+	pad_o_hex1_d	<= (others => '0');
+	pad_o_hex2_d	<= (others => '0');
+	pad_o_hex3_d	<= (others => '0');
 
 ------------------------------------------------------------------------------------------------------------------
 -- ASSIGN unused pins

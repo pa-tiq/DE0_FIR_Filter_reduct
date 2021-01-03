@@ -3,10 +3,13 @@ halfFilt = floor(L/2);
 n = -halfFilt:halfFilt;
 
 a = 1; % amplitude
-b = 0.01; % abertura do lobulo principal
+b = 0.15; % abertura do lobulo principal
 w = blackman(L)';
 hh = a*sinc(b*n);
 filter = hh.*w;
+
+plot(filter);
+fvtool(filter,1);
 
 RANGE_N = -512; RANGE_P = 511; % 10 bits
 

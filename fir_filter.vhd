@@ -5,13 +5,13 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity fir_filter is
-	generic ( 
-		Win 			: INTEGER 	;-- Input bit width
-		Wmult			: INTEGER 	;-- Multiplier bit width 2*Win
-		Wadd 			: INTEGER 	;-- Adder width = Wmult+log2(L)-1
-		Wout 			: INTEGER 	;-- Output bit width: between Win and Wadd
-		BUTTON_HIGH 	: STD_LOGIC ;
-		LFilter  		: INTEGER 	); -- Filter length
+generic ( 
+	Win 			: INTEGER 	;-- Input bit width
+	Wmult			: INTEGER 	;-- Multiplier bit width 2*Win
+	Wadd 			: INTEGER 	;-- Adder width = Wmult+log2(L)-1
+	Wout 			: INTEGER 	;-- Output bit width: between Win and Wadd
+	BUTTON_HIGH 	: STD_LOGIC ;
+	LFilter  		: INTEGER 	); -- Filter length
 port (
 	clk      : in  std_logic							;
 	reset    : in  std_logic							;
@@ -89,13 +89,15 @@ begin
 	begin		
 		if(reset=BUTTON_HIGH) then
 			o_data  <= (others=>'0');
+			read_out <= 0;
 			counter := 0;
 		elsif(rising_edge(clk)) then
 			o_data  <= std_logic_vector(add_st1(Wadd downto (Wadd-(o_data'length-1))));
-			if(counter<1572) then
+			--o_data  <= std_logic_vector(add_st1(21 downto 6));
+			if(counter<1065) then
 				counter := counter+1;
 			end if;
-			read_out <= counter;			
+			read_out <= counter-6;			
 		end if;		
 	end process p_output;
 

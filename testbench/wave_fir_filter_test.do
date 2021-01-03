@@ -1,14 +1,10 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate -format Logic /tb_fir_filter_test/clk
-add wave -noupdate -format Logic /tb_fir_filter_test/reset
-add wave -noupdate -format Literal -radix hexadecimal /tb_fir_filter_test/o_data_buffer
-TreeUpdate [SetDefaultTree]
-quietly WaveActivateNextPane
 add wave -noupdate -format Logic -radix unsigned /tb_fir_filter_test/u_fir_filter_test/clk
 add wave -noupdate -format Logic -radix unsigned /tb_fir_filter_test/u_fir_filter_test/reset
 add wave -noupdate -format Logic -radix decimal /tb_fir_filter_test/u_fir_filter_test/o_fir_coeff
 add wave -noupdate -format Logic -radix decimal /tb_fir_filter_test/u_fir_filter_test/i_data
+add wave -noupdate -format Logic -radix decimal /tb_fir_filter_test/u_fir_filter_test/o_input
 add wave -noupdate -format AnalogStep -radix decimal /tb_fir_filter_test/u_fir_filter_test/o_data_buffer
 add wave -noupdate -format Literal -radix decimal /tb_fir_filter_test/u_fir_filter_test/o_data_buffer
 add wave -noupdate -format Literal -radix decimal /tb_fir_filter_test/u_fir_filter_test/read_out

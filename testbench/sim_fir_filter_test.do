@@ -1,3 +1,7 @@
+vcom -reportprogress 300 -work work C:/Users/patiq/Documents/Projects/DE0_FIR_Filter_reduct/testbench/tb_fir_filter_test.vhd
+vcom -reportprogress 300 -work work C:/Users/patiq/Documents/Projects/DE0_FIR_Filter_reduct/fir_filter_test.vhd
+vcom -reportprogress 300 -work work C:/Users/patiq/Documents/Projects/DE0_FIR_Filter_reduct/fir_filter.vhd
+
 vcom  -work work ../fir_filter.vhd
 vcom  -work work ../fir_filter_test.vhd
 
